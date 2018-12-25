@@ -155,7 +155,15 @@ export default class World extends Vue {
         { left, top },
         {
           duration: 750,
-          onChange: this.canvas.renderAll.bind(this.canvas),
+          onChange: () => {
+            const { left, top } = this.player;
+            console.log(left, top);
+            // this.canvas.renderAll.bind(this.canvas);
+            if ((left as number) >= this.canvasWidth) {
+              return;
+            }
+            this.canvas.renderAll();
+          },
           onComplete: () => {
             if (options.shadow) {
               if (options.x > 0) {
