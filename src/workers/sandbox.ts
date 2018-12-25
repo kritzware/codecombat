@@ -11,7 +11,7 @@ const ctx: Worker = self as any;
   ctx.postMessage({ type, data });
 };
 
-async function execute(l?: Level) {
+async function execute(l: Level) {
   if (!_l.code) return;
 
   // TODO: Make this better (currently it just adds the level vars to this)
@@ -19,7 +19,7 @@ async function execute(l?: Level) {
   Object.keys(levelVars).forEach(v => ((<any>ctx)[v] = (<any>levelVars)[v]));
 
   try {
-    eval(_l.code);
+    eval(l.code);
     (<any>ctx)._callPostMessage("sandbox:finished");
   } catch (error) {
     (<any>ctx)._callPostMessage("sandbox:error", { error });

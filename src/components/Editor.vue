@@ -22,6 +22,8 @@ export default class Editor extends Vue {
     this.editor = ace.edit("editor");
     this.loadDefaultSettings();
 
+    this.editor.$blockScrolling = Infinity;
+
     const autoCompleter = {
       getCompletions(
         editor: ace.Editor,

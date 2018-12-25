@@ -20,6 +20,7 @@ interface GridPlayerOptions {
 interface PlayerTranslationOptions {
   x: number;
   y: number;
+  shadow?: boolean;
 }
 
 @Component
@@ -38,6 +39,9 @@ export default class World extends Vue {
    * @name createCanvas
    */
   private createCanvas(): void {
+    if (this.canvas) {
+      this.canvas.dispose();
+    }
     this.canvas = new fabric.Canvas("c", {
       backgroundColor: CANVAS_BACKGROUND_COLOR,
       selection: false,
@@ -96,6 +100,27 @@ export default class World extends Vue {
   }
 
   /**
+   * @name fillSquare
+   */
+  private fillSquare(x: number, y: number): void {
+    this.canvas.add(
+      new fabric.Rect({
+        left: x,
+        top: y,
+        width: 50,
+        height: 50,
+        type: "rectangle",
+        fill: "rgba(0, 255, 0, 0.1)",
+        originX: "left",
+        originY: "top",
+        hasControls: false,
+        centeredRotation: true,
+        selectable: false
+      })
+    );
+  }
+
+  /**
    * @name createMouseHoverWatcher
    */
   private createMouseHoverWatcher(): void {
@@ -119,16 +144,33 @@ export default class World extends Vue {
    * @name movePlayer
    */
   public movePlayer(options: PlayerTranslationOptions): Promise<void> {
-    const left = (<any> this.player).left + this.grid * options.x;
-    const top = (<any> this.player).top + this.grid * options.y;
+    const prevLeft = this.player.left as number;
+    const prevTop = this.player.top as number;
 
-    return new Promise((resolve) => {
+    const left = (<any>this.player).left + this.grid * options.x;
+    const top = (<any>this.player).top + this.grid * options.y;
+
+    return new Promise(resolve => {
       this.player.animate(
         { left, top },
         {
           duration: 750,
           onChange: this.canvas.renderAll.bind(this.canvas),
-          onComplete: () => resolve(),
+          onComplete: () => {
+            if (options.shadow) {
+              if (options.x > 0) {
+                for (let i = prevLeft; i < left; i += this.grid) {
+                  this.fillSquare(i, prevTop);
+                }
+              }
+              if (options.y > 0) {
+                for (let i = prevTop; i < top; i += this.grid) {
+                  this.fillSquare(prevLeft, i);
+                }
+              }
+            }
+            resolve();
+          },
           easing: fabric.util.ease.easeInOutQuad
         }
       );
@@ -136,20 +178,24 @@ export default class World extends Vue {
   }
 
   /**
-   * @name reset
+   * @name getPlayerPosition
    */
-  public reset(): void {
-    // this.canvas.dispose();
-    // this.createCanvas();
-    // this.createGrid();
-    // this.createPlayer({ x: 1, y: 1 });
-    // this.createMouseHoverWatcher();
+  public getPlayerPosition() {
+    const { left, top } = this.player;
+    return {
+      x: (left as number) / this.grid + 1,
+      y: (top as number) / this.grid + 1
+    };
   }
 
   /**
    * @name load
    */
   public load(level: Level) {
+    this.createCanvas();
+    this.createGrid();
+    this.createMouseHoverWatcher();
+
     this.createPlayer({
       x: level.playerStartPosition[0],
       y: level.playerStartPosition[1]
@@ -173,13 +219,6 @@ export default class World extends Vue {
       name: "objective-1"
     });
     this.canvas.add(x);
-  }
-
-  async mounted() {
-    this.createCanvas();
-    this.createGrid();
-    // this.createPlayer({ x: 1, y: 1 });
-    this.createMouseHoverWatcher();
   }
 }
 </script>

@@ -19,7 +19,6 @@
       <el-row :gutter="20">
         <!-- Actions -->
         <el-col :span="12">
-          <el-item style="margin-right: 50px;">Level: 1</el-item>
           <el-button-group>
             <el-button
               type="primary"
@@ -58,6 +57,15 @@
         <!-- End of Status -->
       </el-row>
     </el-footer>
+
+    <!-- MODAL -->
+    <el-dialog title="Level Complete" :visible.sync="completed" width="30%" center>
+      <span>Well done! You successfully completed level {{ levelNo }}. Your score is broken down below.</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="reset">Retry</el-button>
+        <el-button type="primary" @click="nextLevel">Next Level</el-button>
+      </span>
+    </el-dialog>
   </el-container>
 </template>
 <script lang="ts">
@@ -80,6 +88,8 @@ export default class Home extends Vue {
   private levelNo: number = 1;
   private running: boolean = false;
   // private loading: boolean = true;
+  private completed: boolean = false;
+  private failed: boolean = false;
 
   private commands: Array<any> = [];
   private attempts: number = 0;
@@ -97,14 +107,12 @@ export default class Home extends Vue {
     this.sandbox = new Worker();
   }
 
-  async mounted() {
+  async importLevel() {
     this.level = (await import(`@/levels/level-${this.levelNo}`)).default;
+  }
 
-    this.$refs.editor.setValue(this.level.code, 1);
-    this.$refs.editor.focus();
-
-    this.$refs.world.load(this.level);
-
+  async mounted() {
+    await this.reset();
     this.sandbox.addEventListener("message", this.sandboxEventHandler);
   }
 
@@ -129,7 +137,7 @@ export default class Home extends Vue {
   }
 
   async runCode(): Promise<void> {
-    if (this.running) {
+    if (this.running || this.failed) {
       return;
     }
     const code = this.$refs.editor.getCode();
@@ -140,7 +148,7 @@ export default class Home extends Vue {
     this.running = true;
     this.attempts++;
 
-    this.sandbox.postMessage({});
+    this.sandbox.postMessage({ code });
   }
 
   async executeCommands() {
@@ -148,10 +156,10 @@ export default class Home extends Vue {
       const { type, data } = event;
       switch (type) {
         case "player:move:x":
-          await this.$refs.world.movePlayer({ x: data.x, y: 0 });
+          await this.$refs.world.movePlayer({ x: data.x, y: 0, shadow: true });
           break;
         case "player:move:y":
-          await this.$refs.world.movePlayer({ x: 0, y: data.y });
+          await this.$refs.world.movePlayer({ x: 0, y: data.y, shadow: true });
           break;
         default:
           console.log("sandbox event not found", event);
@@ -160,12 +168,50 @@ export default class Home extends Vue {
 
     console.log("Finished pass.");
     this.running = false;
+
+    const playerPos = this.$refs.world.getPlayerPosition();
+
+    const passed =
+      playerPos.x === this.level.finishPosition[0] &&
+      playerPos.y === this.level.finishPosition[1];
+
+    // TODO: Make this if level passed
+    if (passed) {
+      this.completed = true;
+      console.log("Level completed successfully.");
+      return;
+    }
+
+    console.log("Level failed, restarting world state.");
+    this.failed = true;
+    this.$message({
+      type: "error",
+      message: "That wasn't right, please try again :(",
+      duration: 2000
+    });
+
+    setTimeout(() => {
+      this.$refs.world.load(this.level);
+      this.failed = false;
+    }, 2000);
   }
 
-  reset() {
+  private nextLevel(): void {
+    this.levelNo++;
+    this.reset();
+  }
+
+  async reset() {
+    if (this.failed) {
+      return;
+    }
+    await this.importLevel();
     this.$refs.editor.setValue(this.level.code, 1);
     this.$refs.editor.focus();
-    this.$refs.world.reset();
+    this.$refs.world.load(this.level);
+
+    this.completed = false;
+    this.running = false;
   }
 
   private hoverX(val: number) {
