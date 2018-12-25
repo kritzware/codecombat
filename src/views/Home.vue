@@ -64,6 +64,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import Editor from "@/components/Editor.vue";
 import World from "@/components/World.vue";
+// @ts-ignore
 import Worker from "worker-loader?inline!@/workers/sandbox";
 import Level from "@/levels/types";
 
@@ -73,9 +74,9 @@ import Level from "@/levels/types";
     World
   }
 })
-export default class About extends Vue {
+export default class Home extends Vue {
   private sandbox: Worker;
-  private level: Level;
+  private level!: Level;
   private levelNo: number = 1;
   private running: boolean = false;
   // private loading: boolean = true;

@@ -6,15 +6,16 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 import ace from "brace";
+
 require("brace/mode/javascript");
 require("brace/ext/language_tools");
 
 @Component
 export default class Editor extends Vue {
-  @Prop({ required: true, type: String }) width: string;
-  @Prop({ required: true, type: String }) height: string;
+  @Prop({ required: true, type: String }) width!: string;
+  @Prop({ required: true, type: String }) height!: string;
 
-  private editor: ace.Editor;
+  private editor!: ace.Editor;
 
   async mounted() {
     const langTools = ace.acequire("ace/ext/language_tools");
@@ -22,7 +23,13 @@ export default class Editor extends Vue {
     this.loadDefaultSettings();
 
     const autoCompleter = {
-      getCompletions: function(editor, session, pos, prefix, callback) {
+      getCompletions(
+        editor: ace.Editor,
+        session: any,
+        pos: any,
+        prefix: any,
+        callback: any
+      ) {
         if (prefix.length === 0) {
           callback(null, []);
           return;
@@ -36,14 +43,12 @@ export default class Editor extends Vue {
 
         callback(
           null,
-          playerMethods.map(name => {
-            return {
-              name,
-              value: name,
-              score: 300,
-              meta: "player"
-            };
-          })
+          playerMethods.map(name => ({
+            name,
+            value: name,
+            score: 300,
+            meta: "player"
+          }))
         );
       }
     };

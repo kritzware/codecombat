@@ -24,12 +24,12 @@ interface PlayerTranslationOptions {
 
 @Component
 export default class World extends Vue {
-  private canvas: fabric.Canvas;
-  private player: fabric.Rect;
+  private canvas!: fabric.Canvas;
+  private player!: fabric.Rect;
 
   private readonly grid: number = 50;
-  private canvasWidth: number;
-  private canvasHeight: number;
+  private canvasWidth!: number;
+  private canvasHeight!: number;
 
   private xPrevHover: number = 0;
   private yPrevHover: number = 0;
@@ -119,10 +119,10 @@ export default class World extends Vue {
    * @name movePlayer
    */
   public movePlayer(options: PlayerTranslationOptions): Promise<void> {
-    let left = this.player.left + this.grid * options.x;
-    let top = this.player.top + this.grid * options.y;
+    const left = (<any> this.player).left + this.grid * options.x;
+    const top = (<any> this.player).top + this.grid * options.y;
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.player.animate(
         { left, top },
         {

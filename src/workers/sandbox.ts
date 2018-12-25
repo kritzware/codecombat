@@ -20,9 +20,9 @@ async function execute(l?: Level) {
 
   try {
     eval(_l.code);
-    ctx._callPostMessage("sandbox:finished");
+    (<any>ctx)._callPostMessage("sandbox:finished");
   } catch (error) {
-    ctx._callPostMessage("sandbox:error", { error });
+    (<any>ctx)._callPostMessage("sandbox:error", { error });
   }
 }
 
