@@ -3,16 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "node --max_old_space_size=4096 node_modules/.bin/vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@types/fabric": "^1.5.48",
+    "brace": "^0.11.1",
+    "element-ui": "^2.4.11",
+    "fabric": "^2.4.5",
+    "promise-worker": "^2.0.0",
     "vue": "^2.5.17",
     "vue-class-component": "^6.0.0",
     "vue-property-decorator": "^7.0.0",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.1"
+    "vue-worker": "^1.2.1",
+    "vuex": "^3.0.1",
+    "worker-loader": "^2.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.0",
