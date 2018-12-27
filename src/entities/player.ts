@@ -1,28 +1,68 @@
-interface IPLayer {
+import Sprite from "@/entities/sprite";
+import Canvas from "@/entities/canvas";
+
+import { CANVAS_GRID_SCALE } from "@/entities/constants";
+
+interface PlayerOptions {
+  canvas: Canvas;
   x: number;
   y: number;
 }
 
-export default class Player {
-  private currentX: number;
-  private currentY: number;
+interface PlayerMoveOptions {
+  x: number;
+  y: number;
+  absolute?: boolean;
+}
 
-  constructor(options: IPLayer) {
-    this.currentX = options.x;
-    this.currentY = options.y;
+export default class Player extends Sprite {
+  constructor(options: PlayerOptions) {
+    super("knight_f_idle_anim_f0_50x50", {
+      canvas: options.canvas,
+      x: options.x,
+      y: options.y,
+      name: "player",
+    });
   }
 
-  public moveX(x: number) {
-    this.currentX = x;
-    (<any>self)._callPostMessage("player:move:x", { x });
-  }
+  public async move(options: PlayerMoveOptions) {
+    const { left, top } = this.getPosition();
 
-  public moveY(y: number) {
-    this.currentY = y;
-    (<any>self)._callPostMessage("player:move:y", { y });
-  }
+    const x = options.absolute ? options.x : left + CANVAS_GRID_SCALE * options.x;
+    const y = options.absolute ? options.y : top + CANVAS_GRID_SCALE * options.y;
 
-  public getPosition(): object {
-    return { x: this.currentX, y: this.currentY };
+    return this.animate({
+      x,
+      y,
+      ms: 1500,
+    });
+
+    //       onComplete: () => {
+    //         if (options.shadow) {
+    //           if (options.x > 0) {
+    //             for (let i = prevLeft; i < left; i += this.grid) {
+    //               this.fillSquare(i, prevTop);
+    //             }
+    //           }
+    //           if (options.y > 0) {
+    //             for (let i = prevTop; i < top; i += this.grid) {
+    //               this.fillSquare(prevLeft, i);
+    //             }
+    //           }
+    //         }
+    //         resolve();
+    //       },
+    //       abort: () => {
+    //         const { left, top } = this.player;
+    //         if ((left as number) >= this.canvasWidth - this.grid) {
+    //           this.player.left = this.canvasWidth - this.grid;
+    //           return true;
+    //         }
+
+    //         if ((top as number) >= this.canvasHeight - this.grid) {
+    //           this.player.top = this.canvasHeight - this.grid;
+    //           return true;
+    //         }
+    //       },
   }
 }

@@ -154,26 +154,18 @@ export default class Home extends Vue {
   async executeCommands() {
     for (const event of this.commands) {
       const { type, data } = event;
-      switch (type) {
-        case "player:move:x":
-          await this.$refs.world.movePlayer({ x: data.x, y: 0, shadow: true });
-          break;
-        case "player:move:y":
-          await this.$refs.world.movePlayer({ x: 0, y: data.y, shadow: true });
-          break;
-        default:
-          console.log("sandbox event not found", event);
-      }
+      await this.$refs.world.updateWorld(type, data);
     }
 
     console.log("Finished pass.");
     this.running = false;
 
-    const playerPos = this.$refs.world.getPlayerPosition();
-
-    const passed =
-      playerPos.x === this.level.finishPosition[0] &&
-      playerPos.y === this.level.finishPosition[1];
+    // TODO: Fix this
+    // const playerPos = this.$refs.world.getPlayerPosition();
+    // const passed =
+    //   playerPos.x === this.level.finishPosition[0] &&
+    //   playerPos.y === this.level.finishPosition[1];
+    const passed = false;
 
     // TODO: Make this if level passed
     if (passed) {
@@ -208,7 +200,7 @@ export default class Home extends Vue {
     await this.importLevel();
     this.$refs.editor.setValue(this.level.code, 1);
     this.$refs.editor.focus();
-    this.$refs.world.load(this.level);
+    await this.$refs.world.load(this.level);
 
     this.completed = false;
     this.running = false;

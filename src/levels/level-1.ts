@@ -1,8 +1,8 @@
-import Player from "@/entities/player";
+import Player from "@/entities/controller";
 import Level from "@/levels/types";
 
 const level: Level = {
-  playerStartPosition: [1, 1],
+  playerStartPosition: [2, 2],
   finishPosition: [11, 11],
   init() {
     const player = new Player({ x: 1, y: 1 });
