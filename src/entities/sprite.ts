@@ -71,6 +71,7 @@ export default class Sprite {
             }
             resolve();
           },
+          // @ts-ignore: Abort not currently added to @types/fabric
           abort: options.abort,
           easing: fabric.util.ease.easeInOutQuad,
         }

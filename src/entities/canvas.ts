@@ -1,5 +1,4 @@
 import { fabric } from "fabric";
-import Sprite from "@/entities/sprite";
 
 interface CanvasOptions {
   gridScale: number;
@@ -48,11 +47,6 @@ export default class Canvas {
     }
   }
 
-  // public addSprite(sprite: Sprite) {
-  //   const obj = sprite.instance();
-  //   this.canvas.add(obj);
-  // }
-
   public render() {
     return this.canvas.renderAll();
   }
@@ -60,17 +54,4 @@ export default class Canvas {
   public addObject(obj: fabric.Object) {
     this.canvas.add(obj);
   }
-
-  // public animate(sprite: Sprite, options: any) {
-  //   const obj = sprite.instance();
-  //   obj.animate(
-  //     {
-  //       ...options.dest,
-  //       onChange: () => {
-  //         this.canvas.renderAll();
-  //       },
-  //     },
-  //     ...options.options
-  //   );
-  // }
 }
