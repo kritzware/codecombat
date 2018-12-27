@@ -156,12 +156,6 @@ export default class World extends Vue {
         {
           duration: 750,
           onChange: () => {
-            const { left, top } = this.player;
-            console.log(left, top);
-            // this.canvas.renderAll.bind(this.canvas);
-            if ((left as number) >= this.canvasWidth) {
-              return;
-            }
             this.canvas.renderAll();
           },
           onComplete: () => {
@@ -178,6 +172,18 @@ export default class World extends Vue {
               }
             }
             resolve();
+          },
+          abort: () => {
+            const { left, top } = this.player;
+            if ((left as number) >= this.canvasWidth - this.grid) {
+              this.player.left = this.canvasWidth - this.grid;
+              return true;
+            }
+
+            if ((top as number) >= this.canvasHeight - this.grid) {
+              this.player.top = this.canvasHeight - this.grid;
+              return true;
+            }
           },
           easing: fabric.util.ease.easeInOutQuad
         }
